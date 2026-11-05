@@ -1,1 +1,17 @@
-
+{
+    "hooks":{
+        "UserPromptSubmit":[
+            {
+                "hooks":[
+                    {
+                        "type": "command",
+                        "command": "bash \"$CS440/scripts/context-switcher.sh\"",
+                        "description": "Load relavent context based on branch",
+                        "timeout": 10
+                    }
+                ]
+            }
+            
+        ]
+    }
+}
