@@ -4,18 +4,16 @@ class hillCimber():
     def __init__(self, enviorment):
         self.matrix = enviorment
 
-    def two_dimensional_hill_climbing(self, matrix=None, sim_ann=False, temputare=10.0, cooling_rate=0.5):
-        if matrix is None:
-            matrix = self.matrix
-        current_position = self.get_start(matrix)
+    def two_dimensional_hill_climbing(self, sim_ann=False, temputare=10.0, cooling_rate=0.5):
+        current_position = self.get_start()
         path = [current_position]
-        best_score = self.get_score(current_position, matrix)
+        best_score = self.get_score(current_position)
         while True:
-            neighbors = self.get_neighbors(current_position, matrix)
+            neighbors = self.get_neighbors(current_position)
             best_neighbor = None
             best_neighbor_score = best_score
             for neighbor in neighbors:
-                score = self.get_score(neighbor, matrix)
+                score = self.get_score(neighbor)
                 if score > best_neighbor_score:
                     best_neighbor_score = score
                     best_neighbor = neighbor
@@ -31,23 +29,23 @@ class hillCimber():
             temputare *= cooling_rate
         return path, best_score
 
-    def get_score(current_position, matrix):
-        score = matrix[current_position[0]][current_position[1]]
+    def get_score(self, current_position):
+        score = self.matrix[current_position[0]][current_position[1]]
         if isinstance(score, str):
             score = -math.inf
         return score
 
-    def get_start(matrix):
-        for i in range(len(matrix)):
-            for j in range(len(matrix[0])):
-                if matrix[i][j] == "start":
+    def get_start(self):
+        for i in range(len(self.matrix)):
+            for j in range(len(self.matrix[0])):
+                if self.matrix[i][j] == "start":
                     return (i,j)
         return None
 
-    def get_neighbors(current_position, matrix):
+    def get_neighbors(self, current_position):
         i = current_position[0]
         j = current_position[1]
-        matrix_size = len(matrix)
+        matrix_size = len(self.matrix)
         neighbors = []
         if j - 1 > -1:
             neighbors.append((i, j - 1))
@@ -60,7 +58,7 @@ class hillCimber():
         return neighbors
 
 matrix = [[0, 3, 2, "start"], [0, 0, 0, 0], [0, 4, 6, 8], [7, 9, 0, 10]]
-hillcilmer = hillCimber()
+hillcilmer = hillCimber(matrix)
 def disply_path(path, matrix):
     for i in range(len(matrix)):
         for j in range(len(matrix[0])):
@@ -72,7 +70,7 @@ def disply_path(path, matrix):
 
 def Test1():
     print("Test get_start")
-    start = hillcilmer.get_start(matrix)
+    start = hillcilmer.get_start()
     if start == (0,3):
         print("Correct Start Returned")
     else:
@@ -81,7 +79,7 @@ def Test1():
 def Test2():
     print("Test get_neighbors 2 neighbors")
     start = (0,3)
-    neighbors = hillcilmer.get_neighbors(start, matrix)
+    neighbors = hillcilmer.get_neighbors(start)
     if neighbors == [(0, 2), (1, 3)]:
         print("Correct Neighbors Returned")
     else:
@@ -90,25 +88,25 @@ def Test2():
 def Test3():
     print("Test get_neighbors 4 neighbors")
     start = (1, 1)
-    neighbors = hillcilmer.get_neighbors(start, matrix)
+    neighbors = hillcilmer.get_neighbors(start)
     if neighbors == [(1, 0), (0, 1), (1, 2), (2, 1)]:
         print("Correct Neighbors Returned")
     else:
         print("Incorrect Neighbors Returned")
 
-# Test1()
-# Test2()
-# Test3()
+Test1()
+Test2()
+Test3()
 
 # Hill Cimber
 print("No Simulated annealing")
-path, end = hillcilmer.two_dimensional_hill_climbing(matrix)
+path, end = hillcilmer.two_dimensional_hill_climbing()
 print(f"The path taken by the vaccum is: {path} and ends at {end}")
 disply_path(path, matrix)
 print()
 
 print("Simulated annealing")
-path, end = hillcilmer.two_dimensional_hill_climbing(matrix, sim_ann=True)
+path, end = hillcilmer.two_dimensional_hill_climbing(sim_ann=True)
 print(f"The path taken by the vaccum is: {path} and ends at {end}")
 disply_path(path, matrix)
 print()
