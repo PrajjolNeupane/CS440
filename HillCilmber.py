@@ -19,7 +19,7 @@ class hillCimber():
                 if score > best_neighbor_score:
                     best_neighbor_score = score
                     best_neighbor = neighbor
-                elif sim_ann and random.random() < math.exp((score - best_neighbor_score) / temputare):
+                elif (score > -math.inf) and sim_ann and random.random() < math.exp((score - best_neighbor_score) / temputare):
                     best_neighbor_score = score
                     best_neighbor = neighbor
 
@@ -33,8 +33,8 @@ class hillCimber():
 
     def get_score(current_position, matrix):
         score = matrix[current_position[0]][current_position[1]]
-        if score == "start":
-            score = -1
+        if isinstance(score, str):
+            score = -math.inf
         return score
 
     def get_start(matrix):
