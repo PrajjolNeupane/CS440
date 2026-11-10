@@ -129,38 +129,6 @@ scripts/
 
 ## Claude Code setup
 
-### Lab 4, strategy 1: persistent memory ("Write")
-
-- **Project memory**: [.claude/CLAUDE.md](.claude/CLAUDE.md), loaded in every session. It holds
-  the shared rules: the grid and its business rules, the coding standards (type hints, descriptive
-  names, unit tests, seeded randomness, keeping the agent apart from the environment) and a map of
-  the files.
-- **User memory**: each group member keeps personal preferences in their own
-  `~/.claude/CLAUDE.md`. That file is not in the repository. We moved the preferences the whole
-  group shares (explicit return types, descriptive names) into the project file.
-- **Dynamic imports**: longer notes live in `.claude/context/` and are loaded only when needed.
-  `scripts/context-switcher.sh` runs on every prompt (a UserPromptSubmit hook). It picks notes by
-  git branch (`qlearning*`, `lab5*`) and by words in the prompt (Q-learning terms such as
-  "epsilon" load `qlearning.md`, and "test" loads `testing.md`). It loads each note at most once
-  per session, so the same text doesn't pile up.
-
-### Lab 4, strategy 4: sub-agents ("Isolate")
-
-[.claude/agents/rl-code-reviewer.md](.claude/agents/rl-code-reviewer.md) reviews `qlearning/` and
-`tests/` in its own context window, and only its report comes back to the main conversation. It
-follows the four traits from the slides:
-
-- **Specific description**, with "Use proactively after changing qlearning/ or tests/".
-- **Limited tools**: Glob, Grep, Read and Bash. It has no Edit or Write, so it reports problems but
-  never fixes them.
-- **Structured output**: Summary, Critical / Major / Minor Issues, Recommendations, Test Results
-  and Approval Status. Every issue gives the file and line, the rule it breaks, and a fix.
-- **Obstacles Encountered**: reports anything unclear. In a test run it noticed that CLAUDE.md
-  never said that arriving in a terminal cell doesn't end the episode, and we added that.
-
-Before the real code existed, we tested it on a sample with 8 planted bugs (a backwards slip, a
-SARSA-style update, the agent reading the grid, and others). It caught all 8.
-
 ### Lab 5: hooks, sub-agents and skills
 
 | Feature | Where | What it does for this project |
@@ -168,16 +136,3 @@ SARSA-style update, the agent reading the grid, and others). It caught all 8.
 | Hooks | `.claude/settings.json` | UserPromptSubmit runs the context switcher above. PostToolUse runs the unit tests after every Write or Edit to a `.py` file in `qlearning/` or `tests/`, and sends any failures straight back to Claude, so it sees them and fixes them. |
 | Sub-agents | `.claude/agents/` | The code reviewer above. It ran after the code was written and again after a refactor. |
 | Skills | `.claude/skills/tune-hyperparameters/` | A step-by-step procedure for choosing the four hyperparameters plus the episode count. It runs `python3 -m qlearning.sweep` in stages, decides each value with fixed rules (ties, extending a range when the best value sits at its edge, confirming on fresh seeds), and writes the evidence to `docs/`. |
-
-**Why these three:**
-- **Hooks** make the checks automatic. Claude can't forget to run the tests, and it gets the right
-  notes without being asked.
-- **The test hook replaces a test-runner sub-agent.** The slides say test-runner sub-agents
-  "performed worst" because they hide the output you need. The hook puts the failure output in the
-  main conversation instead.
-- **The sub-agent** suits review work: it only needs to return a verdict, which matches the
-  slides' rule for when to delegate.
-- **The skill** turns choosing hyperparameters, which the lab asks for, into a procedure anyone in
-  the group can repeat.
-- **We didn't use MCP.** The project talks to no outside service, and everything runs locally on
-  the standard library.
