@@ -1,17 +1,29 @@
 {
-    "hooks":{
-        "UserPromptSubmit":[
+    "hooks": {
+        "UserPromptSubmit": [
             {
-                "hooks":[
+                "hooks": [
                     {
                         "type": "command",
-                        "command": "bash \"$CS440/scripts/context-switcher.sh\"",
-                        "description": "Load relavent context based on branch",
+                        "command": "bash \"$CLAUDE_PROJECT_DIR/scripts/context-switcher.sh\"",
+                        "statusMessage": "Loading relevant context",
                         "timeout": 10
                     }
                 ]
             }
-            
+        ],
+        "PostToolUse": [
+            {
+                "matcher": "Write|Edit|MultiEdit",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash \"$CLAUDE_PROJECT_DIR/scripts/run-tests-hook.sh\"",
+                        "statusMessage": "Running unit tests",
+                        "timeout": 120
+                    }
+                ]
+            }
         ]
     }
 }
